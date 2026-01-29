@@ -1,0 +1,6 @@
+forklift
+pallet
+worker
+package
+obstacle
+safety_zone

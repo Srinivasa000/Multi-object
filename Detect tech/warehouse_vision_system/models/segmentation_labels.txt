@@ -1,0 +1,5 @@
+floor
+obstacle
+restricted_area
+safe_path
+unknown

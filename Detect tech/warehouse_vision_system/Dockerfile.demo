@@ -1,0 +1,44 @@
+# Demo Dockerfile for Warehouse Vision System
+# Simplified version that runs on any system without NVIDIA dependencies
+
+FROM python:3.9-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements.demo.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements.demo.txt
+
+# Copy application code
+COPY src/ /app/src/
+COPY config/ /app/config/
+
+# Create necessary directories
+RUN mkdir -p /app/logs
+
+# Create non-root user
+RUN useradd -m -u 1000 demo && \
+    chown -R demo:demo /app
+
+# Switch to non-root user
+USER demo
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Default command
+CMD ["python3", "-m", "src.demo_main"]
